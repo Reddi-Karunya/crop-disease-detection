@@ -1,0 +1,449 @@
+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
+
+
+venv\Scripts\activate
+
+python app.py
+
+curl -X POST -F file=@test_leaf.jpg http://127.0.0.1:5000/predict
+
+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 - hugging face
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Disease Detection</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 20px auto; }
+    .preview { max-width: 300px; margin-top: 10px; }
+    .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    label { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Upload Leaf Image</h2>
+
+  <input type="file" id="fileInput" accept="image/*"><br>
+  <img id="preview" class="preview" style="display:none;" />
+
+  <br><br>
+  <button id="uploadBtn">Get Disease & Treatment</button>
+
+  <div id="status"></div>
+
+  <div class="result" id="result" style="display:none;">
+    <p><label>Disease:</label> <span id="disease"></span></p>
+    <p><label>English:</label> <span id="en"></span></p>
+    <p><label>Hindi:</label> <span id="hi"></span></p>
+    <p><label>Telugu:</label> <span id="te"></span></p>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const statusDiv = document.getElementById('status');
+    const resultDiv = document.getElementById('result');
+
+    const diseaseSpan = document.getElementById('disease');
+    const enSpan = document.getElementById('en');
+    const hiSpan = document.getElementById('hi');
+    const teSpan = document.getElementById('te');
+
+    // show image preview
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      }
+    });
+
+    uploadBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please choose an image first.');
+        return;
+      }
+
+      statusDiv.textContent = 'Uploading and predicting...';
+      resultDiv.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('http://127.0.0.1:5000/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          statusDiv.textContent = 'Error from server: ' + res.status;
+          return;
+        }
+
+        const data = await res.json();
+        statusDiv.textContent = 'Success!';
+
+        diseaseSpan.textContent = data.disease;
+        enSpan.textContent = data.solution_en;
+        hiSpan.textContent = data.solution_hi;
+        teSpan.textContent = data.solution_te;
+
+        resultDiv.style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        statusDiv.textContent = 'Network or server error.';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Disease & Treatment Helper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">  <!-- mobile friendly -->
+
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    p.subtitle {
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    #fileInput {
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    #preview {
+      width: 100%;
+      max-height: 260px;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    #uploadBtn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 999px;
+      border: none;
+      background: #2e7d32;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #uploadBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .result-card {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      display: none;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #1b5e20;
+      background: #e8f5e9;
+      margin-bottom: 8px;
+    }
+
+    .lang-title {
+      font-weight: 600;
+      margin-top: 8px;
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+
+    .lang-text {
+      font-size: 14px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Crop Disease & Treatment</h1>
+    <p class="subtitle">Upload a leaf photo to get disease name and medicine steps in English, Hindi, and Telugu.</p>
+
+    <input type="file" id="fileInput" accept="image/*">
+    <img id="preview" />
+
+    <button id="uploadBtn">Get Disease & Treatment</button>
+    <div id="status"></div>
+
+    <div class="result-card" id="result">
+      <div class="tag" id="diseaseTag"></div>
+
+      <div>
+        <div class="lang-title">English</div>
+        <div class="lang-text" id="en"></div>
+      </div>
+
+      <div>
+        <div class="lang-title">हिन्दी / Hindi</div>
+        <div class="lang-text" id="hi"></div>
+      </div>
+
+      <div>
+        <div class="lang-title">తెలుగు / Telugu</div>
+        <div class="lang-text" id="te"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const statusDiv = document.getElementById('status');
+    const resultDiv = document.getElementById('result');
+
+    const diseaseTag = document.getElementById('diseaseTag');
+    const enSpan = document.getElementById('en');
+    const hiSpan = document.getElementById('hi');
+    const teSpan = document.getElementById('te');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+        resultDiv.style.display = 'none';
+        statusDiv.textContent = '';
+      }
+    });
+
+    uploadBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please choose an image first.');
+        return;
+      }
+
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Processing...';
+      statusDiv.textContent = 'Uploading and predicting...';
+      resultDiv.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/predict', {
+      method: 'POST',
+      body: formData
+    });
+
+        const text = await res.text();
+        console.log('Raw response:', text);
+
+        if (!res.ok) {
+          statusDiv.textContent = 'Server error: ' + res.status;
+          return;
+        }
+
+        const data = JSON.parse(text);
+        statusDiv.textContent = 'Done.';
+
+        diseaseTag.textContent = data.disease || 'Unknown disease';
+        enSpan.textContent = data.solution_en || '';
+        hiSpan.textContent = data.solution_hi || '';
+        teSpan.textContent = data.solution_te || '';
+
+        resultDiv.style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        statusDiv.textContent = 'Network or server error.';
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Get Disease & Treatment';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+APP.PY
+
+
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import numpy as np
+from PIL import Image
+import io
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
+app = Flask(__name__)
+CORS(app)  # enable CORS once, on the single app
+
+# Load the trained model once when the server starts
+model = load_model('crop_disease_cnn_model.keras')
+
+# Class indices (replace with your model's)
+class_names = [
+    "Pepper__bell___Bacterial_spot",
+    "Pepper__bell___healthy",
+    "Potato___Early_blight",
+    "Potato___healthy",
+    "Potato___Late_blight",
+    "Tomato___Target_Spot",
+    "Tomato___Tomato_mosaic_virus",
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+    "Tomato_Bacterial_spot",
+    "Tomato_Early_blight",
+    "Tomato_healthy",
+    "Tomato_Late_blight",
+    "Tomato_Leaf_Mold",
+    "Tomato_Septoria_leaf_spot",
+    "Tomato_Spider_mites_Two_spotted_spider_mite"
+]
+
+# Predefined treatment solutions in English
+treatment_solutions = {
+    "Pepper__bell___Bacterial_spot": "Spray with copper-based fungicide. Use 2g per liter of water. Avoid spraying in peak sun hours. Repeat every 7 days until controlled.",
+    "Pepper__bell___healthy": "The plant is healthy. Maintain regular watering and monitor for pests.",
+    "Potato___Early_blight": "Apply fungicide weekly until disease subsides. Remove infected leaves immediately and maintain good air circulation.",
+    "Potato___healthy": "The plant is healthy. Continue standard care and ensure proper nutrition.",
+    "Potato___Late_blight": "Use a fungicide containing chlorothalonil or metalaxyl. Apply at first sign of disease and repeat every 5-7 days.",
+    "Tomato___Target_Spot": "Treat with mancozeb or copper fungicide. Remove affected leaves and improve field hygiene.",
+    "Tomato___Tomato_mosaic_virus": "No cure for viral infections. Remove infected plants to prevent spread. Practice crop rotation.",
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": "Control whitefly vectors using insecticides. Remove infected plants promptly.",
+    "Tomato_Bacterial_spot": "Spray copper-based bactericides early in the season. Avoid working in wet plants to reduce spread.",
+    "Tomato_Early_blight": "Apply fungicides like chlorothalonil or copper compounds. Prune lower leaves to improve air flow.",
+    "Tomato_healthy": "Plant is healthy. Maintain regular care and watch for early signs of disease.",
+    "Tomato_Late_blight": "Use fungicides containing chlorothalonil and protect from wet conditions. Remove infected debris.",
+    "Tomato_Leaf_Mold": "Apply fungicides and ensure plants are spaced properly for airflow. Avoid overhead watering.",
+    "Tomato_Septoria_leaf_spot": "Remove infected leaves and apply fungicides regularly. Rotate crops to reduce disease buildup.",
+    "Tomato_Spider_mites_Two_spotted_spider_mite": "Use miticides or insecticidal soap. Regularly spray plants with water to reduce mite populations."
+}
+
+def hf_translate(text, target_lang):
+    if target_lang == "te":
+        model_name = "Meher2006/english-to-telugu-model"
+    elif target_lang == "hi":
+        model_name = "Helsinki-NLP/opus-mt-en-hi"
+    else:
+        return text
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    inputs = tokenizer(text, return_tensors="pt")
+    outputs = model.generate(**inputs)
+    translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return translated_text
+
+def prepare_image(img):
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    img = img.resize((224, 224))
+    img_array = image.img_to_array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+    return img_array
+    
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('index.html')
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+    img_bytes = file.read()
+    img = Image.open(io.BytesIO(img_bytes))
+    prepared_img = prepare_image(img)
+
+    preds = model.predict(prepared_img)
+    pred_index = np.argmax(preds)
+    disease = class_names[pred_index]
+
+    solution_en = treatment_solutions.get(disease, "Treatment information not available for this disease.")
+    solution_te = hf_translate(solution_en, "te")
+    solution_hi = hf_translate(solution_en, "hi")
+
+    print("Disease:", disease)
+    print("English:", solution_en)
+    print("Hindi:", solution_hi)
+    print("Telugu:", solution_te)
+
+    return jsonify({
+        "disease": disease,
+        "solution_en": solution_en,
+        "solution_te": solution_te,
+        "solution_hi": solution_hi
+    }), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)
+

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: crop-disease-backend
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r crop-disease-backend/requirements.txt
+    startCommand: gunicorn app:app --chdir crop-disease-backend --bind 0.0.0.0:$PORT
+    autoDeploy: true
