@@ -82,29 +82,12 @@ Follow these steps to run the project on your machine:
 
 ---
 
-## ☁️ Deployment (Render)
-
-This project is configured for **Render** via [render.yaml](render.yaml).
-
-1. Connect this GitHub repo to your Render account.
-2. Create a "New Web Service" from this repo.
-3. Render will automatically detect the settings and deploy.
-4. Note: First build may take ~5-10 mins as it installs TensorFlow and Torch.
-
----
-
 ## 📝 Usage
 
 1. Choose the crop category (General Vegetables or Rice).
 2. Drag and drop an image of the affected leaf or click to select a file.
 3. Click **"Get Disease & Treatment"**.
 4. View the diagnosis and treatment steps in English, Hindi, or Telugu.
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Reddi-Karunya/crop-disease-detection/issues).
 
 ---
 
