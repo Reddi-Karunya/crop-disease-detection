@@ -1,16 +1,113 @@
-# crop-disease-detection
+# 🌿 Crop Disease Detection System
 
-## Live Demo
-When deployed, the app will be accessible at a public URL. Connect this repo to Render and the deployment will auto-provision. The service name is `crop-disease-backend`. The link will appear on the Render dashboard after the first deploy.
+A modern, multilingual web application for detecting diseases in crops including **Tomato, Potato, Pepper (Bell), and Rice**. This project uses deep learning (CNN) for image classification and state-of-the-art NLP models (Transformers) for multilingual treatment suggestions.
 
-## Deploy to Render (One-time Setup)
-- Ensure this repository is on GitHub.
-- In Render, create a new Web Service from this GitHub repo.
-- Render detects `render.yaml` and provisions the service automatically.
-- First build installs dependencies from [crop-disease-backend/requirements.txt](file:///c:/Users/REDDY%20KARUNYA/crop-disease-detection/crop-disease-backend/requirements.txt).
-- Start command runs `gunicorn app:app` in [crop-disease-backend](file:///c:/Users/REDDY%20KARUNYA/crop-disease-detection/crop-disease-backend).
+![Project Screenshot](screenshot.png)
+*(Replace screenshot.png with an actual screenshot of the app in action!)*
 
-## Project Structure
-- Backend Flask app: [app.py](file:///c:/Users/REDDY%20KARUNYA/crop-disease-detection/crop-disease-backend/app.py)
-- Frontend UI: [templates/index.html](file:///c:/Users/REDDY%20KARUNYA/crop-disease-detection/crop-disease-backend/templates/index.html)
-- Deployment config: [render.yaml](file:///c:/Users/REDDY%20KARUNYA/crop-disease-detection/render.yaml)
+---
+
+## 🚀 Features
+
+- **Wide Crop Coverage**: Detects diseases across 15+ categories for Tomato, Potato, and Pepper.
+- **Specialized Rice Model**: Dedicated analysis for Bacterial Leaf Blight, Brown Spot, and Leaf Smut.
+- **Multilingual Support**: Real-time translation of treatment advice into **English, Hindi (हिंदी), and Telugu (తెలుగు)**.
+- **Modern UI**: Clean, responsive dashboard with drag-and-drop upload and real-time progress tracking.
+- **Quick Results**: Optimized model loading for fast predictions.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Backend**: Python, Flask, Flask-CORS
+- **Deep Learning**: TensorFlow/Keras (CNN)
+- **NLP/Translation**: Hugging Face Transformers (Helsinki-NLP/Meher2006)
+- **Frontend**: HTML5, CSS3, JavaScript (Fetch API)
+- **Deployment**: Render-ready with Gunicorn and `render.yaml`
+
+---
+
+## 📁 Project Structure
+
+```text
+crop-disease-detection/
+├── crop-disease-backend/
+│   ├── app.py                # Main Flask server
+│   ├── requirements.txt      # Python dependencies
+│   ├── templates/
+│   │   └── index.html        # Modern Frontend UI
+│   ├── crop_disease_cnn_model.keras  # Tomato/Potato/Pepper Model
+│   └── rice_disease_cnn_model.keras  # Specialized Rice Model
+├── notebooks/                # Training scripts and data exploration
+├── render.yaml               # Auto-deployment configuration
+└── README.md                 # Project Documentation
+```
+
+---
+
+## 💻 Local Setup & Running
+
+Follow these steps to run the project on your machine:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Reddi-Karunya/crop-disease-detection.git
+   cd crop-disease-detection
+   ```
+
+2. **Navigate to the backend**:
+   ```bash
+   cd crop-disease-backend
+   ```
+
+3. **Set up a Virtual Environment (Recommended)**:
+   ```bash
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1   # Windows
+   source venv/bin/activate      # Linux/macOS
+   ```
+
+4. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Start the server**:
+   ```bash
+   python app.py
+   ```
+
+6. **Access the App**:
+   Open your browser and visit: `http://127.0.0.1:5000/`
+
+---
+
+## ☁️ Deployment (Render)
+
+This project is configured for **Render** via [render.yaml](render.yaml).
+
+1. Connect this GitHub repo to your Render account.
+2. Create a "New Web Service" from this repo.
+3. Render will automatically detect the settings and deploy.
+4. Note: First build may take ~5-10 mins as it installs TensorFlow and Torch.
+
+---
+
+## 📝 Usage
+
+1. Choose the crop category (General Vegetables or Rice).
+2. Drag and drop an image of the affected leaf or click to select a file.
+3. Click **"Get Disease & Treatment"**.
+4. View the diagnosis and treatment steps in English, Hindi, or Telugu.
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Reddi-Karunya/crop-disease-detection/issues).
+
+---
+
+## ✨ Support
+
+Give a ⭐️ if this project helped you!
