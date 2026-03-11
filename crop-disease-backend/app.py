@@ -5,14 +5,13 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 import io
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 app = Flask(__name__)
-CORS(app)  # enable CORS once, on the single app
+CORS(app)
 
 # ----------------- MAIN (tomato/potato/pepper) MODEL -----------------
 
-model = load_model('crop_disease_cnn_model.keras')
+model = None
 
 class_names = [
     "Pepper__bell___Bacterial_spot",
@@ -52,7 +51,7 @@ treatment_solutions = {
 
 # ----------------- RICE MODEL -----------------
 
-rice_model = load_model('rice_disease_cnn_model.keras')
+rice_model = None
 
 class_names_rice = [
     "Bacterial leaf blight",  # 0
@@ -69,6 +68,7 @@ rice_treatment_solutions = {
 # ----------------- SHARED HELPERS -----------------
 
 def hf_translate(text, target_lang):
+    from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
     if target_lang == "te":
         model_name = "Meher2006/english-to-telugu-model"
     elif target_lang == "hi":
@@ -90,6 +90,18 @@ def prepare_image(img):
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
 
+def get_main_model():
+    global model
+    if model is None:
+        model = load_model('crop_disease_cnn_model.keras')
+    return model
+
+def get_rice_model():
+    global rice_model
+    if rice_model is None:
+        rice_model = load_model('rice_disease_cnn_model.keras')
+    return rice_model
+
 # ----------------- ROUTES -----------------
 
 @app.route('/', methods=['GET'])
@@ -107,7 +119,7 @@ def predict():
     img = Image.open(io.BytesIO(img_bytes))
     prepared_img = prepare_image(img)
 
-    preds = model.predict(prepared_img)
+    preds = get_main_model().predict(prepared_img)
     pred_index = np.argmax(preds)
     disease = class_names[pred_index]
 
@@ -141,7 +153,7 @@ def predict_rice():
     img = Image.open(io.BytesIO(img_bytes))
     prepared_img = prepare_image(img)
 
-    preds = rice_model.predict(prepared_img)
+    preds = get_rice_model().predict(prepared_img)
     pred_index = int(np.argmax(preds))
     disease = class_names_rice[pred_index]
 
