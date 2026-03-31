@@ -4,6 +4,7 @@ A modern, multilingual web application for detecting diseases in crops including
 
 <img width="1918" height="1000" alt="image" src="https://github.com/user-attachments/assets/24227079-9b8f-44b5-a11a-022e9e53370d" />
 <img width="1918" height="983" alt="image" src="https://github.com/user-attachments/assets/3ebb2ae3-bf19-4856-a1d6-07b73474eea7" />
+<img width="1916" height="1011" alt="image" src="https://github.com/user-attachments/assets/ff295818-c70d-4516-8b9b-fc254d09b86d" />
 
 
 ---
