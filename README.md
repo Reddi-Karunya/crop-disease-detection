@@ -3,6 +3,7 @@
 A modern, multilingual web application for detecting diseases in crops including **Tomato, Potato, Pepper (Bell), and Rice**. This project uses deep learning (CNN) for image classification and state-of-the-art NLP models (Transformers) for multilingual treatment suggestions.
 
 <img width="1918" height="1000" alt="image" src="https://github.com/user-attachments/assets/24227079-9b8f-44b5-a11a-022e9e53370d" />
+<img width="1918" height="983" alt="image" src="https://github.com/user-attachments/assets/3ebb2ae3-bf19-4856-a1d6-07b73474eea7" />
 
 
 ---
