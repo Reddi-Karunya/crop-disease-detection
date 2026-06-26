@@ -1,127 +1,80 @@
 # 🌿 Crop Disease Detection System
 
-A modern, multilingual web application for detecting diseases in crops including **Tomato, Potato, Pepper (Bell), and Rice**. This project uses deep learning (CNN) for image classification and state-of-the-art NLP models (Transformers) for multilingual treatment suggestions.
+A modern, multilingual web application for detecting diseases in crops including Tomato, Potato, Pepper (Bell), and Rice. The app uses a Flask backend with TensorFlow/Keras CNN models for image classification and returns treatment suggestions in English, Hindi, and Telugu.
 
 <img width="1918" height="1000" alt="image" src="https://github.com/user-attachments/assets/24227079-9b8f-44b5-a11a-022e9e53370d" />
 <img width="1918" height="983" alt="image" src="https://github.com/user-attachments/assets/3ebb2ae3-bf19-4856-a1d6-07b73474eea7" />
 <img width="1916" height="1011" alt="image" src="https://github.com/user-attachments/assets/ff295818-c70d-4516-8b9b-fc254d09b86d" />
 
+## Features
 
----
+- Detects disease classes for tomato, potato, pepper, and rice
+- Uses local TensorFlow/Keras models for inference
+- Returns top-3 predictions with confidence scores
+- Provides multilingual treatment guidance in English, Hindi, and Telugu
+- Includes a simple web UI for image upload and prediction
 
-## 🚀 Features
+## Tech stack
 
-- **Wide Crop Coverage**: Detects diseases across 15+ categories for Tomato, Potato, and Pepper.
-- **Specialized Rice Model**: Dedicated analysis for Bacterial Leaf Blight, Brown Spot, and Leaf Smut.
-- **Multilingual Support**: Real-time translation of treatment advice into **English, Hindi (हिंदी), and Telugu (తెలుగు)**.
-- **Modern UI**: Clean, responsive dashboard with drag-and-drop upload and real-time progress tracking.
-- **Local Inference**: Uses self-hosted TensorFlow models, so no external NVIDIA API key is required for prediction.
-- **Quick Results**: Optimized model loading for fast predictions.
+- Backend: Python, Flask, Flask-CORS
+- Deep learning: TensorFlow/Keras
+- Image processing: Pillow, NumPy
+- Translation: deep-translator
+- Deployment: Vercel-ready with Python entrypoint support
 
----
-
-## 🛠️ Tech Stack
-
-- **Backend**: Python, Flask, Flask-CORS
-- **Deep Learning**: TensorFlow/Keras (CNN)
-- **NLP/Translation**: Deep Translator (Google Translate API wrapper)
-- **Frontend**: HTML5, CSS3, JavaScript (Fetch API)
-- **Deployment**: Vercel-ready with Python entrypoint config and `vercel.json`
-
----
-
-## 📁 Project Structure
+## Project structure
 
 ```text
 crop-disease-detection/
-├── app.py                   # Root Flask entrypoint for Vercel
-├── api/                     # Vercel serverless Python handlers
-├── crop_disease_backend/    # Import wrapper for the backend app
-├── crop-disease-backend/
-│   ├── app.py               # Main Flask server
-│   ├── requirements.txt     # Python dependencies
+├── app.py                     # Root Flask entrypoint for Vercel
+├── pyproject.toml             # Vercel Python entrypoint configuration
+├── requirements.txt           # Root Python dependencies
+├── vercel.json                # Vercel routing configuration
+├── api/                       # Vercel serverless Python entrypoints
+├── crop_disease_backend/      # Import wrapper for the backend app
+├── crop-disease-backend/      # Main Flask app and model assets
+│   ├── app.py
 │   ├── templates/
-│   │   └── index.html       # Modern Frontend UI
 │   ├── crop_disease_cnn_model.keras
 │   └── rice_disease_cnn_model.keras
-├── notebooks/               # Training scripts and data exploration
-├── pyproject.toml           # Vercel Python entrypoint config
-├── requirements.txt         # Root Python dependencies
-├── vercel.json              # Vercel route configuration
-└── README.md                # Project Documentation
+└── README.md
 ```
 
----
+## Local run
 
-## 💻 Local Setup & Running
+```bash
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app.py
+```
 
-Follow these steps to run the project on your machine:
+Then open http://127.0.0.1:5000/
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Reddi-Karunya/crop-disease-detection.git
-   cd crop-disease-detection
-   ```
+## Vercel deployment
 
-2. **Navigate to the backend**:
-   ```bash
-   cd crop-disease-backend
-   ```
+1. Push this repository to GitHub.
+2. Create a new Vercel project and import the repository.
+3. Use these settings:
+   - Framework: Other
+   - Build Command: pip install -r requirements.txt
+   - Start Command: gunicorn app:app --bind 0.0.0.0:$PORT
+4. Deploy.
 
-3. **Set up a Virtual Environment (Recommended)**:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\Activate.ps1   # Windows
-   source venv/bin/activate      # Linux/macOS
-   ```
+> The app uses TensorFlow model files from the backend folder, so the first prediction may take a little longer while the model loads.
 
-4. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Notes
 
-5. **Start the server**:
-   ```bash
-   python app.py
-   ```
+- The app exposes /health, /predict, and /predict_rice endpoints.
+- The default UI is served from the Flask app.
 
-6. **Access the App**:
-   Open your browser and visit: `http://127.0.0.1:5000/`
-
----
-
-## ☁️ Deployment (Vercel)
-
-This project is configured for **Vercel** with Python entrypoint support.
-
-1. Push the repository to GitHub.
-2. Create a new Vercel project and import this repository.
-3. Use these deployment settings:
-   - Build command: `pip install -r requirements.txt`
-   - Start command: `gunicorn app:app --bind 0.0.0.0:$PORT`
-4. Deploy the project and open the generated Vercel URL.
-
-> The app serves the Flask UI and prediction endpoints from the same Python app, so Vercel can host it directly once the entrypoint is detected.
-
----
-
-## 🚀 New UX Improvements
-
-- Confidence score shown for each prediction
-- Top 3 disease predictions displayed
-- Recent prediction history shown in the UI
-- Better status feedback while uploading and predicting
-
----
-## 📝 Usage
+## Usage
 
 1. Choose the crop category (General Vegetables or Rice).
 2. Drag and drop an image of the affected leaf or click to select a file.
-3. Click **"Get Disease & Treatment"**.
+3. Click Get Disease & Treatment.
 4. View the diagnosis and treatment steps in English, Hindi, or Telugu.
 
----
-
-## ✨ Support
+## Support
 
 Give a ⭐️ if this project helped you!
