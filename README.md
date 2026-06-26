@@ -15,6 +15,7 @@ A modern, multilingual web application for detecting diseases in crops including
 - **Specialized Rice Model**: Dedicated analysis for Bacterial Leaf Blight, Brown Spot, and Leaf Smut.
 - **Multilingual Support**: Real-time translation of treatment advice into **English, Hindi (हिंदी), and Telugu (తెలుగు)**.
 - **Modern UI**: Clean, responsive dashboard with drag-and-drop upload and real-time progress tracking.
+- **Local Inference**: Uses self-hosted TensorFlow models, so no external NVIDIA API key is required for prediction.
 - **Quick Results**: Optimized model loading for fast predictions.
 
 ---
@@ -23,9 +24,9 @@ A modern, multilingual web application for detecting diseases in crops including
 
 - **Backend**: Python, Flask, Flask-CORS
 - **Deep Learning**: TensorFlow/Keras (CNN)
-- **NLP/Translation**: Hugging Face Transformers (Helsinki-NLP/Meher2006)
+- **NLP/Translation**: Deep Translator (Google Translate API wrapper)
 - **Frontend**: HTML5, CSS3, JavaScript (Fetch API)
-- **Deployment**: Render-ready with Gunicorn and `render.yaml`
+- **Deployment**: Vercel-ready with Python entrypoint config and `vercel.json`
 
 ---
 
@@ -33,16 +34,21 @@ A modern, multilingual web application for detecting diseases in crops including
 
 ```text
 crop-disease-detection/
+├── app.py                   # Root Flask entrypoint for Vercel
+├── api/                     # Vercel serverless Python handlers
+├── crop_disease_backend/    # Import wrapper for the backend app
 ├── crop-disease-backend/
-│   ├── app.py                # Main Flask server
-│   ├── requirements.txt      # Python dependencies
+│   ├── app.py               # Main Flask server
+│   ├── requirements.txt     # Python dependencies
 │   ├── templates/
-│   │   └── index.html        # Modern Frontend UI
-│   ├── crop_disease_cnn_model.keras  # Tomato/Potato/Pepper Model
-│   └── rice_disease_cnn_model.keras  # Specialized Rice Model
-├── notebooks/                # Training scripts and data exploration
-├── render.yaml               # Auto-deployment configuration
-└── README.md                 # Project Documentation
+│   │   └── index.html       # Modern Frontend UI
+│   ├── crop_disease_cnn_model.keras
+│   └── rice_disease_cnn_model.keras
+├── notebooks/               # Training scripts and data exploration
+├── pyproject.toml           # Vercel Python entrypoint config
+├── requirements.txt         # Root Python dependencies
+├── vercel.json              # Vercel route configuration
+└── README.md                # Project Documentation
 ```
 
 ---
@@ -84,6 +90,29 @@ Follow these steps to run the project on your machine:
 
 ---
 
+## ☁️ Deployment (Vercel)
+
+This project is configured for **Vercel** with Python entrypoint support.
+
+1. Push the repository to GitHub.
+2. Create a new Vercel project and import this repository.
+3. Use these deployment settings:
+   - Build command: `pip install -r requirements.txt`
+   - Start command: `gunicorn app:app --bind 0.0.0.0:$PORT`
+4. Deploy the project and open the generated Vercel URL.
+
+> The app serves the Flask UI and prediction endpoints from the same Python app, so Vercel can host it directly once the entrypoint is detected.
+
+---
+
+## 🚀 New UX Improvements
+
+- Confidence score shown for each prediction
+- Top 3 disease predictions displayed
+- Recent prediction history shown in the UI
+- Better status feedback while uploading and predicting
+
+---
 ## 📝 Usage
 
 1. Choose the crop category (General Vegetables or Rice).

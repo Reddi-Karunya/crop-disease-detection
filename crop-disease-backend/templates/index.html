@@ -124,6 +124,14 @@
       border:1px solid rgba(46,204,113,0.35);
       color:#b7ffd2;margin-bottom:8px
     }
+    #topList{list-style:none;margin:0;padding:0}
+    #topList li{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
+    #topList li:last-child{border-bottom:none}
+    .history-card{margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#0d2015}
+    .history-card h3{margin:0 0 10px;font-size:13px;color:var(--muted)}
+    .history-item{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
+    .history-item:last-child{border-bottom:none}
+    .history-item .meta{font-size:12px;color:var(--muted)}
     .grid{
       display:grid;gap:10px;grid-template-columns:1fr; margin-top:10px
     }
@@ -179,6 +187,7 @@
 
     <section class="card" id="result" style="display:none">
       <div class="chip" id="diseaseTag"></div>
+      <div class="chip" id="confidenceTag"></div>
       <div class="grid">
         <div class="lang">
           <h3>English</h3>
@@ -192,6 +201,14 @@
           <h3>తెలుగు / Telugu</h3>
           <div class="text" id="te"></div>
         </div>
+        <div class="lang">
+          <h3>Top predictions</h3>
+          <ul id="topList"></ul>
+        </div>
+      </div>
+      <div class="history-card" id="historyCard" style="display:none">
+        <h3>Recent predictions</h3>
+        <div id="historyList"></div>
       </div>
       <footer>Model predictions may take a few seconds on first run.</footer>
     </section>
@@ -212,9 +229,15 @@
     const err = document.getElementById('error');
 
     const diseaseTag = document.getElementById('diseaseTag');
+    const confidenceTag = document.getElementById('confidenceTag');
     const enSpan = document.getElementById('en');
     const hiSpan = document.getElementById('hi');
     const teSpan = document.getElementById('te');
+    const topList = document.getElementById('topList');
+    const historyCard = document.getElementById('historyCard');
+    const historyList = document.getElementById('historyList');
+
+    const historyEntries = [];
 
     const setBar = (p)=> bar.style.width = Math.max(0, Math.min(100, p)) + '%';
     const resetUI = ()=>{
@@ -222,7 +245,26 @@
       err.style.display = 'none';
       err.textContent = '';
       resultDiv.style.display = 'none';
+      historyCard.style.display = historyEntries.length ? 'block' : 'none';
       setBar(0);
+    };
+
+    const renderHistory = ()=>{
+      if (!historyEntries.length) {
+        historyCard.style.display = 'none';
+        historyList.innerHTML = '';
+        return;
+      }
+      historyCard.style.display = 'block';
+      historyList.innerHTML = historyEntries.map(item => `
+        <div class="history-item">
+          <div>
+            <strong>${item.disease}</strong>
+            <div class="meta">${item.crop} · ${item.time}</div>
+          </div>
+          <div class="meta">${item.confidence}%</div>
+        </div>
+      `).join('');
     };
     const showPreview = (file)=>{
       preview.src = URL.createObjectURL(file);
@@ -292,9 +334,21 @@
         const data = JSON.parse(text);
         statusDiv.textContent = 'Done.';
         diseaseTag.textContent = data.disease || 'Unknown disease';
+        confidenceTag.textContent = data.confidence ? `Confidence: ${data.confidence}%` : '';
         enSpan.textContent = data.solution_en || '';
         hiSpan.textContent = data.solution_hi || '';
         teSpan.textContent = data.solution_te || '';
+        topList.innerHTML = (data.top_predictions || []).map(item => `
+          <li><strong>${item.disease}</strong> · ${item.confidence}%</li>
+        `).join('');
+        historyEntries.unshift({
+          disease: data.disease || 'Unknown',
+          confidence: data.confidence ? data.confidence.toFixed(2) : '0.00',
+          crop: cropSelect.options[cropSelect.selectedIndex].text,
+          time: new Date().toLocaleTimeString()
+        });
+        if (historyEntries.length > 5) historyEntries.pop();
+        renderHistory();
         resultDiv.style.display = 'block';
         setBar(100);
       } catch (e) {

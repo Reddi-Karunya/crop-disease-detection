@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "crop_disease_backend:app"

@@ -2,6 +2,6 @@ flask
 flask-cors
 gunicorn
 tensorflow
-torch
-transformers
 pillow
+deep-translator
+numpy

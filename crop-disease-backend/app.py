@@ -1,12 +1,18 @@
+from pathlib import Path
+
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps, UnidentifiedImageError
 import io
 
-app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / 'crop_disease_cnn_model.keras'
+RICE_MODEL_PATH = BASE_DIR / 'rice_disease_cnn_model.keras'
+
+app = Flask(__name__, template_folder=str(BASE_DIR / 'templates'))
 CORS(app)
 
 # ----------------- MAIN (tomato/potato/pepper) MODEL -----------------
@@ -68,21 +74,17 @@ rice_treatment_solutions = {
 # ----------------- SHARED HELPERS -----------------
 
 def hf_translate(text, target_lang):
-    from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-    if target_lang == "te":
-        model_name = "Meher2006/english-to-telugu-model"
-    elif target_lang == "hi":
-        model_name = "Helsinki-NLP/opus-mt-en-hi"
-    else:
-        return text
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    tmodel = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    inputs = tokenizer(text, return_tensors="pt")
-    outputs = tmodel.generate(**inputs)
-    translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return translated_text
+    try:
+        from deep_translator import GoogleTranslator
+        # GoogleTranslator uses 'te' for Telugu and 'hi' for Hindi
+        translated = GoogleTranslator(source='auto', target=target_lang).translate(text)
+        return translated
+    except Exception as e:
+        print(f"Translation Error ({target_lang}): {e}")
+        return text # Return original English text if translation fails
 
 def prepare_image(img):
+    img = ImageOps.exif_transpose(img)
     if img.mode != "RGB":
         img = img.convert("RGB")
     img = img.resize((224, 224))
@@ -90,16 +92,38 @@ def prepare_image(img):
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
 
+def parse_image(file_bytes):
+    try:
+        img = Image.open(io.BytesIO(file_bytes))
+        return prepare_image(img)
+    except UnidentifiedImageError:
+        raise ValueError("Invalid image file. Please upload a valid image.")
+    except Exception as err:
+        raise ValueError(f"Unable to read the uploaded file: {err}")
+
+
+def get_top_predictions(preds, names, top_k=3):
+    scores = np.asarray(preds).reshape(-1)
+    indices = np.argsort(scores)[::-1][:top_k]
+    return [
+        {
+            "disease": names[int(i)],
+            "confidence": float(np.round(float(scores[i]) * 100.0, 2))
+        }
+        for i in indices
+    ]
+
+
 def get_main_model():
     global model
     if model is None:
-        model = load_model('crop_disease_cnn_model.keras')
+        model = load_model(str(MODEL_PATH))
     return model
 
 def get_rice_model():
     global rice_model
     if rice_model is None:
-        rice_model = load_model('rice_disease_cnn_model.keras')
+        rice_model = load_model(str(RICE_MODEL_PATH))
     return rice_model
 
 # ----------------- ROUTES -----------------
@@ -107,6 +131,10 @@ def get_rice_model():
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok"}), 200
 
 # Vegetables: tomato/potato/pepper
 @app.route('/predict', methods=['POST'])
@@ -116,11 +144,19 @@ def predict():
 
     file = request.files['file']
     img_bytes = file.read()
-    img = Image.open(io.BytesIO(img_bytes))
-    prepared_img = prepare_image(img)
+    try:
+        prepared_img = parse_image(img_bytes)
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 400
 
-    preds = get_main_model().predict(prepared_img)
-    pred_index = np.argmax(preds)
+    try:
+        preds = get_main_model().predict(prepared_img)
+    except Exception as err:
+        print(f"Prediction error: {err}")
+        return jsonify({"error": "Model prediction failed"}), 500
+
+    top_predictions = get_top_predictions(preds, class_names)
+    pred_index = int(np.argmax(preds, axis=1)[0])
     disease = class_names[pred_index]
 
     solution_en = treatment_solutions.get(
@@ -137,6 +173,8 @@ def predict():
 
     return jsonify({
         "disease": disease,
+        "confidence": top_predictions[0]["confidence"],
+        "top_predictions": top_predictions,
         "solution_en": solution_en,
         "solution_te": solution_te,
         "solution_hi": solution_hi
@@ -150,11 +188,19 @@ def predict_rice():
 
     file = request.files['file']
     img_bytes = file.read()
-    img = Image.open(io.BytesIO(img_bytes))
-    prepared_img = prepare_image(img)
+    try:
+        prepared_img = parse_image(img_bytes)
+    except ValueError as err:
+        return jsonify({"error": str(err)}), 400
 
-    preds = get_rice_model().predict(prepared_img)
-    pred_index = int(np.argmax(preds))
+    try:
+        preds = get_rice_model().predict(prepared_img)
+    except Exception as err:
+        print(f"Rice prediction error: {err}")
+        return jsonify({"error": "Rice model prediction failed"}), 500
+
+    top_predictions = get_top_predictions(preds, class_names_rice)
+    pred_index = int(np.argmax(preds, axis=1)[0])
     disease = class_names_rice[pred_index]
 
     solution_en = rice_treatment_solutions.get(
@@ -171,6 +217,8 @@ def predict_rice():
 
     return jsonify({
         "disease": disease,
+        "confidence": top_predictions[0]["confidence"],
+        "top_predictions": top_predictions,
         "solution_en": solution_en,
         "solution_te": solution_te,
         "solution_hi": solution_hi
